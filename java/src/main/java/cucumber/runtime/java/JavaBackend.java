@@ -34,7 +34,8 @@ import static cucumber.runtime.io.MultiLoader.packageName;
 
 public class JavaBackend implements Backend {
     public static final ThreadLocal<JavaBackend> INSTANCE = new ThreadLocal<JavaBackend>();
-    private final SnippetGenerator snippetGenerator = new SnippetGenerator(createSnippet());
+    // TODO : maybe put a parameter that would enable the QuickCheck snippet
+    private final SnippetGenerator snippetGenerator = new SnippetGenerator(createSnippet(), new QuickCheckSnippet());
 
     private Snippet createSnippet() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

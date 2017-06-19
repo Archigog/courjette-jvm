@@ -13,7 +13,8 @@ import java.util.regex.Pattern;
 public class SnippetGenerator {
     private static final ArgumentPattern[] DEFAULT_ARGUMENT_PATTERNS = new ArgumentPattern[]{
             new ArgumentPattern(Pattern.compile("\"([^\"]*)\""), String.class),
-            new ArgumentPattern(Pattern.compile("(\\d+)"), Integer.TYPE)
+            new ArgumentPattern(Pattern.compile("(\\d+)"), Integer.TYPE),
+            new ArgumentPattern(Pattern.compile("any"), String.class)
     };
     private static final Pattern GROUP_PATTERN = Pattern.compile("\\(");
     private static final Pattern[] ESCAPE_PATTERNS = new Pattern[]{
@@ -32,21 +33,38 @@ public class SnippetGenerator {
     private static final String REGEXP_HINT = "Write code here that turns the phrase above into concrete actions";
 
     private final Snippet snippet;
+    private final Snippet quickCheckSnippet;
 
     public SnippetGenerator(Snippet snippet) {
         this.snippet = snippet;
+        this.quickCheckSnippet = null;
+    }
+
+    public SnippetGenerator(Snippet snippet, Snippet quickCheckSnippet) {
+        this.snippet = snippet;
+        this.quickCheckSnippet = quickCheckSnippet;
     }
 
     public String getSnippet(Step step, FunctionNameGenerator functionNameGenerator) {
-        return MessageFormat.format(
-                snippet.template(),
-                I18n.codeKeywordFor(step.getKeyword()),
-                snippet.escapePattern(patternFor(step.getName())),
-                functionName(step.getName(), functionNameGenerator),
-                snippet.arguments(argumentTypes(step)),
-                REGEXP_HINT,
-                step.getRows() == null ? "" : snippet.tableHint()
-        );
+        return
+                (quickCheckSnippet == null ? "" :
+                // This MessageFormat adds the QuickCheck annotations
+                // TODO : change the first and second parameter in order to initialize the arguments of the snippet (Strings)
+                MessageFormat.format(
+                    quickCheckSnippet.template(),
+                    I18n.codeKeywordFor(step.getKeyword()),
+                    quickCheckSnippet.escapePattern(patternFor(step.getName()))
+                ))
+                // This MessageFormat adds the original Cucumber template
+                + MessageFormat.format(
+                    snippet.template(),
+                    I18n.codeKeywordFor(step.getKeyword()),
+                    snippet.escapePattern(patternFor(step.getName())),
+                    functionName(step.getName(), functionNameGenerator),
+                    snippet.arguments(argumentTypes(step)),
+                    REGEXP_HINT,
+                    step.getRows() == null ? "" : snippet.tableHint()
+                );
     }
 
     String patternFor(String stepName) {
