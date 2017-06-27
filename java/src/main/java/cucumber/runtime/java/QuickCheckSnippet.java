@@ -9,6 +9,6 @@ class QuickCheckSnippet extends AbstractJavaSnippet {
 
     @Override
     public String template() {
-        return "@{0}(\"{1}\")\n";
+        return "@{0}({1})\n";
     }
 }

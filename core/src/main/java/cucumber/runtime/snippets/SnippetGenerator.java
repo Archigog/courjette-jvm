@@ -35,36 +35,41 @@ public class SnippetGenerator {
     private final Snippet snippet;
     private final Snippet quickCheckSnippet;
 
+    private Boolean quickCheck;
+
     public SnippetGenerator(Snippet snippet) {
         this.snippet = snippet;
         this.quickCheckSnippet = null;
+        this.quickCheck = Boolean.FALSE;
     }
 
     public SnippetGenerator(Snippet snippet, Snippet quickCheckSnippet) {
         this.snippet = snippet;
         this.quickCheckSnippet = quickCheckSnippet;
+        this.quickCheck = Boolean.FALSE;
     }
 
     public String getSnippet(Step step, FunctionNameGenerator functionNameGenerator) {
-        return
-                (quickCheckSnippet == null ? "" :
+        String qcSnippet = (quickCheckSnippet == null ? "" :
                 // This MessageFormat adds the QuickCheck annotations
                 // TODO : change the first and second parameter in order to initialize the arguments of the snippet (Strings)
                 MessageFormat.format(
-                    quickCheckSnippet.template(),
-                    I18n.codeKeywordFor(step.getKeyword()),
-                    quickCheckSnippet.escapePattern(patternFor(step.getName()))
-                ))
-                // This MessageFormat adds the original Cucumber template
-                + MessageFormat.format(
-                    snippet.template(),
-                    I18n.codeKeywordFor(step.getKeyword()),
-                    snippet.escapePattern(patternFor(step.getName())),
-                    functionName(step.getName(), functionNameGenerator),
-                    snippet.arguments(argumentTypes(step)),
-                    REGEXP_HINT,
-                    step.getRows() == null ? "" : snippet.tableHint()
-                );
+                        quickCheckSnippet.template(),
+                        "Property",
+                        "trials = 5"
+                ));
+
+        String cucumberSnippet = MessageFormat.format(
+                snippet.template(),
+                I18n.codeKeywordFor(step.getKeyword()),
+                snippet.escapePattern(patternFor(step.getName())),
+                functionName(step.getName(), functionNameGenerator),
+                snippet.arguments(argumentTypes(step)),
+                REGEXP_HINT,
+                step.getRows() == null ? "" : snippet.tableHint()
+        );
+
+        return (!quickCheck ? "" : qcSnippet) + cucumberSnippet;
     }
 
     String patternFor(String stepName) {
@@ -125,6 +130,12 @@ public class SnippetGenerator {
                 if (m.lookingAt()) {
                     Class<?> typeForSignature = argumentPatterns()[i].type();
                     argTypes.add(typeForSignature);
+                    // If we are in a QuickCheck situation
+                    if (m.group().equals("any")) {
+                        quickCheck = Boolean.TRUE;
+                    } else {
+                        quickCheck = Boolean.FALSE;
+                    }
 
                     matchedLength = m.group().length();
                     break;
