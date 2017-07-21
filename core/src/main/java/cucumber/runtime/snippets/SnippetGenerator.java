@@ -15,9 +15,7 @@ public class SnippetGenerator {
     private static final ArgumentPattern[] DEFAULT_ARGUMENT_PATTERNS = new ArgumentPattern[]{
             new ArgumentPattern(Pattern.compile("\"([^\"]*)\""), String.class),
             new ArgumentPattern(Pattern.compile("(\\d+)"), Integer.TYPE),
-            new ArgumentPattern(Pattern.compile("any"), String.class),
-            new ArgumentPattern(Pattern.compile("any \"([^\"]*)\" from \"([^\"]*)\""), String.class),
-            new ArgumentPattern(Pattern.compile("any \"([^\"]*)\" to \"([^\"]*)\""), String.class)
+            new ArgumentPattern(Pattern.compile("any"), String.class)
     };
     private static final ArgumentPattern[] QUICKCHECK_GENERATOR_PATTERNS = new ArgumentPattern[]{
             new ArgumentPattern(Pattern.compile("(?i)byte(s)?"), Byte.class),
@@ -70,7 +68,6 @@ public class SnippetGenerator {
     }
 
     public String getSnippet(Step step, FunctionNameGenerator functionNameGenerator) {
-        // TODO : change quickCheckSnippet for quickCheck : define TRUE before this line
         Snippet currentSnippet = isQuickCheckStep(step) ? quickCheckSnippet : snippet;
         return MessageFormat.format(
                     currentSnippet.template(),
