@@ -1,11 +1,11 @@
 package cucumber.runtime.snippets;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import cucumber.api.DataTable;
 import gherkin.I18n;
 import gherkin.formatter.model.Step;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -27,7 +27,7 @@ public class SnippetGenerator {
             new ArgumentPattern(Pattern.compile("(?i)boolean(s)?"), Boolean.class),
             new ArgumentPattern(Pattern.compile("(?i)char(acter)?(s)?"), Character.class),
             new ArgumentPattern(Pattern.compile("(?i)big( )?decimal(s)?"), BigDecimal.class),
-            new ArgumentPattern(Pattern.compile("(?i)big( )?integer(s)?"), BigDecimal.class),
+            new ArgumentPattern(Pattern.compile("(?i)big( )?integer(s)?"), BigInteger.class),
             new ArgumentPattern(Pattern.compile("(?i)date(s)?"), Date.class),
             new ArgumentPattern(Pattern.compile("(?i)enum(eration)?(s)?"), Enum.class),
             new ArgumentPattern(Pattern.compile("(?i)string(s)?"), String.class),
@@ -94,7 +94,7 @@ public class SnippetGenerator {
             for (Matcher matcher : matchers) {
                 Matcher m = matcher.region(pos, name.length());
                 if (m.lookingAt()) {
-                    // If we are in a basic QuickCheck situation
+                    // If we are in a QuickCheck situation
                     if (m.group().equals("any")) {
                         result = Boolean.TRUE;
                     }
@@ -169,7 +169,7 @@ public class SnippetGenerator {
             for (int i = 0; i < matchers.length; i++) {
                 Matcher m = matchers[i].region(pos, name.length());
                 if (m.lookingAt()) {
-                    // If we are in a basic QuickCheck situation, use the QuickCheck arguments function
+                    // If we are in a QuickCheck situation, use the QuickCheck arguments function
                     if (m.group().equals("any")) {
                         argTypes.addAll(quickCheckGeneratorArguments(name.substring(m.end())));
                         break;
